@@ -10,24 +10,23 @@
 
 # ****************************************************************************** #
 # import the necessary packages
-from picamera.array import PiRGBArray
-from picamera import PiCamera
 from threading import Thread
 from UniTools import FPSCounter, Repeater
 import cv2
 import time
  
-class PiVideoStream:
+class WebcamVideoStream:
 	def __init__(self, resolution=(320, 240), framerate=60, wb = (1.5,1.5)):
 		# initialize the camera and stream
-		self.camera = PiCamera()
-		self.camera.resolution = resolution
-		self.camera.framerate = framerate
-		self.camera.awb_mode = "off"
-		self.camera.awb_gains = wb
-		self.rawCapture = PiRGBArray(self.camera, size=resolution)
-		self.stream = self.camera.capture_continuous(self.rawCapture,
-			format="bgr", use_video_port=True)
+		self.stream = cv2.VideoCapture(0)
+		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, resolution[0])
+		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution[1])
+		self.stream.set(cv2.CAP_PROP_FPS, framerate)
+		# self.camera.awb_mode = "off"
+		# self.camera.awb_gains = wb
+		# self.rawCapture = PiRGBArray(self.camera, size=resolution)
+		# self.stream = self.camera.capture_continuous(self.rawCapture,
+		# 	format="bgr", use_video_port=True)
 		self.newFrame = False
 
 		self.counter = FPSCounter(movingAverage=60).start()
@@ -52,25 +51,29 @@ class PiVideoStream:
 		print("Done")
 
 		print("Camera is running.")
-		try:
-			for f in self.stream:
+		while(True):
+			try:
 				# grab the frame from the stream and clear the stream in
 				# preparation for the next frame
-				self.frame = cv2.flip(f.array, 0 )
-				self.rawCapture.truncate(0)
+
+				ret, f = self.stream.read()
+				if not ret:
+					self.stop()
+					return
+
+				self.frame = cv2.flip(f, 0 )
+				#self.rawCapture.truncate(0)
 				self.newFrame = True
 				self.counter.tick()
-	
+
 				# if the thread indicator variable is set, stop the thread
 				# and resource camera resources
 				if self.stopped:
-					self.stream.close()
-					self.rawCapture.close()
-					self.camera.close()
+					self.stream.release()
 					print("Camera stopped.")
 					return
-		except:
-			self.frame = None
+			except:
+				self.frame = None
 
 	def read(self):
 		# return the frame most recently read
@@ -88,7 +91,7 @@ class PiVideoStream:
 if __name__ == "__main__":
 	pass
 
-	piVideo = PiVideoStream()
-	piVideo.start()
+	webcamVideo = WebcamVideoStream()
+	webcamVideo.start()
 
-	repeater = Repeater(piVideo.counter.print, 0.5).start()
+	repeater = Repeater(webcamVideo.counter.print, 0.5).start()

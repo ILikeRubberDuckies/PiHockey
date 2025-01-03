@@ -13,9 +13,7 @@ import cv2
 import numpy as np
 from threading import Thread
 try:
-	from picamera.array import PiRGBArray
-	from picamera import PiCamera
-	from PiVideoStream import PiVideoStream
+	from WebcamVideoStream import WebcamVideoStream
 except:
 	pass
 from UniTools import Filter, FPSCounter, Repeater
@@ -28,7 +26,7 @@ import random
 
 # Those settings are basically only for early stage debbuging
 # MAX_PERFORMANCE should be always set to 1. Trust me, hell will be unleashed upon you otherwise.
-MAX_PERFORMANCE = 1
+MAX_PERFORMANCE = 0
 
 PUCK_RADIUS = 20
 RESOLUTION_SCALE = 1
@@ -351,8 +349,8 @@ class Camera():
 
 	def startCamera(self):
 		if self.piVideo is None:
-			self.piVideo = PiVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
-			self.camera = self.piVideo.camera
+			self.piVideo = WebcamVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
+			self.camera = self.piVideo.stream
 
 		self.piVideo.start()		
 
