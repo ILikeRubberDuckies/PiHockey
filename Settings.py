@@ -10,10 +10,10 @@
 
 # ****************************************************************************** #
 import numpy as np
-try:
-    import cPickle as pickle
-except ModuleNotFoundError:
-    import pickle
+# try:
+#     import cPickle as pickle
+# except ModuleNotFoundError:
+import pickle
 
 class Settings():
 	def __init__(self, pathToSettings = ""):
@@ -38,7 +38,8 @@ class Settings():
 		self.camera["colorToDetect"] = np.uint8([0, 255, 120])
 		self.camera["intervals"] = [30, 140, 140]
 		self.camera["lowerLimits"] = np.uint8([165, 255-140, 0])
-		self.camera["upperLimits"] = np.uint8([15, 255, 120+140])
+		#self.camera["upperLimits"] = np.uint8([15, 255, 120+140])
+		self.camera["upperLimits"] = np.uint8([15, 255, 255])
 		self.camera["whiteBalance"] = [1.5, 1.5]
 		self.camera["filterConstants"] = [8, 2.2, 1.2]
 		self.camera["limitPuckRadius"] = 4

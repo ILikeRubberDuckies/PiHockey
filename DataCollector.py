@@ -25,10 +25,10 @@ from PIL import Image
 import uuid
 import numpy as np
 
-try:
-    import cPickle as pickle
-except ModuleNotFoundError:
-    import pickle
+# try:
+#     import cPickle as pickle
+# except ModuleNotFoundError:
+import pickle
 
 class DataCollector():
 	def __init__(self, game, camera, settings, pathToRecords="GameRecordings/", pathToStats="ah_statistics.obj"):

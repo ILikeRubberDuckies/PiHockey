@@ -50,7 +50,7 @@ EventLoop.ensure_window()
 
 Window.clearcolor = (1, 1, 1, 1)
 Window.size = (938, 550)
-Window.fullscreen = True
+Window.fullscreen = False
 
 
 #----------------------------- Root Widget -----------------------------

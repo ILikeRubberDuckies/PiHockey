@@ -162,7 +162,7 @@ class Serial():
 
 	def start(self):
 		
-
+		return
 		if self._stopped:
 			for i in range(9):
 				try:

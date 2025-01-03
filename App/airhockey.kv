@@ -1722,13 +1722,15 @@
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			radius: [max(isRounded,0)* min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			#radius: [max(isRounded,0)* min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			radius: [10,10,10,10]
 		Color:
 			rgba: (disabledButtonColor if self.disabled else buttonColor[:3] + (max(self.alpha, 0),)) if self.state == 'normal' else app.root.colorTheme
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			#radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			radius: [10,10,10,10]
 		Color:
 			rgba: [1,1,1,0] if root.iconSource == "" else (disabledIconColor if self.disabled else self.iconColor if self.iconColor is not None else iconColor)
 		Rectangle:
@@ -1750,7 +1752,8 @@
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			#radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
+			radius: [10,10,10,10]
 # Custom buttons --------------------------------------------------------			
 <RoundedSwitchButton@ToggleButton+RoundedButtonLook>:
 	background_color: [0, 0, 0, 0]
