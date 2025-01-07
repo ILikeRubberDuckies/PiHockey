@@ -26,7 +26,7 @@ class Game():
 		self.strikersVelocity = [Vector2(0,0), Vector2(0,0)]
 		self.puckPosition = Vector2(0,0)
 
-		self.frequencyCounter = FPSCounter(60)
+		self.frequencyCounter = FPSCounter(120)
 		self.infoRepeater = Repeater(self.printToConsole, 0.2)
 		self.gameStartedAt = 0
 		self.lastStepAt = 0

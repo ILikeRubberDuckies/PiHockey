@@ -620,28 +620,28 @@
 											parameter: 'camera["limitPuckRadius"]'
 											colorTheme: root.colorTheme	
 
-									# BoxLayout: # White balance
-									# 	spacing: 10
-									# 	RoundedLabel:
-									# 		size_hint_x: .65
-									# 		text: "White Balance"
-									# 		textMagnitude: .4
-									# 	SliderEditor:
-									# 		text: "R {:.2f}".format(root.whiteBalance[0])
-									# 		limits: [0, 3]
-									# 		step: .02
-									# 		parameter: 'camera["whiteBalance"][0]'
-									# 		onValue: 
-									# 			lambda x: exec('app.root.camera.setWhiteBalance()')
-									# 		colorTheme: root.colorTheme
-									# 	SliderEditor:
-									# 		text: "B {:.2f}".format(root.whiteBalance[1])
-									# 		limits: [0, 3]
-									# 		step: .02
-									# 		parameter: 'camera["whiteBalance"][1]'
-									# 		onValue: 
-									# 			lambda x: exec('app.root.camera.setWhiteBalance()')
-									# 		colorTheme: root.colorTheme
+									BoxLayout: # White balance
+										spacing: 10
+										RoundedLabel:
+											size_hint_x: .65
+											text: "White Balance"
+											textMagnitude: .4
+										SliderEditor:
+											text: "R {:.2f}".format(root.whiteBalance[0])
+											limits: [0, 3]
+											step: .02
+											parameter: 'camera["whiteBalance"][0]'
+											onValue: 
+												lambda x: exec('app.root.camera.setWhiteBalance()')
+											colorTheme: root.colorTheme
+										SliderEditor:
+											text: "B {:.2f}".format(root.whiteBalance[1])
+											limits: [0, 3]
+											step: .02
+											parameter: 'camera["whiteBalance"][1]'
+											onValue: 
+												lambda x: exec('app.root.camera.setWhiteBalance()')
+											colorTheme: root.colorTheme
 									# BoxLayout:								
 
 								SubSection: # Frame
@@ -1722,15 +1722,13 @@
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			#radius: [max(isRounded,0)* min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
-			radius: [10,10,10,10]
+			radius: [max(isRounded,0)* min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
 		Color:
 			rgba: (disabledButtonColor if self.disabled else buttonColor[:3] + (max(self.alpha, 0),)) if self.state == 'normal' else app.root.colorTheme
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			#radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
-			radius: [10,10,10,10]
+			radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
 		Color:
 			rgba: [1,1,1,0] if root.iconSource == "" else (disabledIconColor if self.disabled else self.iconColor if self.iconColor is not None else iconColor)
 		Rectangle:
@@ -1752,8 +1750,7 @@
 		RoundedRectangle:
 			pos: self.pos
 			size: self.size
-			#radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
-			radius: [10,10,10,10]
+			radius: [max(isRounded,0) * min(self.size[0]/2, self.size[1]/2) * self.roundMagnitude for isRounded in self.roundedCorners]
 # Custom buttons --------------------------------------------------------			
 <RoundedSwitchButton@ToggleButton+RoundedButtonLook>:
 	background_color: [0, 0, 0, 0]

@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from threading import Thread
 try:
-	from WebcamVideoStream import WebcamVideoStream
+	from WebcamVideoStream import ADSVideoStream
 except:
 	pass
 from UniTools import Filter, FPSCounter, Repeater
@@ -26,7 +26,7 @@ import random
 
 # Those settings are basically only for early stage debbuging
 # MAX_PERFORMANCE should be always set to 1. Trust me, hell will be unleashed upon you otherwise.
-MAX_PERFORMANCE = 0
+MAX_PERFORMANCE = 1
 
 PUCK_RADIUS = 20
 RESOLUTION_SCALE = 1
@@ -51,6 +51,9 @@ class Camera():
 			self.settings = settings.camera
 		else:
 			self.settings = settings
+
+		# self.settings["resolution"][1] = 192
+		# self.settings["resolution"][0] = 320
 
 		self.piVideo = None
 		self.camera = None
@@ -241,7 +244,12 @@ class Camera():
 					blurred = cv2.GaussianBlur(self.frame, (11, 11), 0)
 					frameHSV = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV) # not worth
 				else:
-					frameHSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+					frameHSV = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)
+					frameHSV = cv2.cvtColor(frameHSV, cv2.COLOR_BGR2HSV)
+
+				# cv2.imshow("e",frameHSV)
+				# cv2.waitKey(0)
+
 
 				if HSV_TRACKBARS and not MAX_PERFORMANCE:
 					self.settings["lowerLimits"][0] = cv2.getTrackbarPos("Hl", "Trackbars")
@@ -349,8 +357,7 @@ class Camera():
 
 	def startCamera(self):
 		if self.piVideo is None:
-			self.piVideo = WebcamVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
-			self.camera = self.piVideo.stream
+			self.piVideo = ADSVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
 
 		self.piVideo.start()		
 
@@ -425,11 +432,6 @@ class Camera():
 	def getPuckPosition(self):
 		self.newPosition = False
 		return self.unitFilteredPuckPosition
-
-	def setWhiteBalance(self):
-		if self.camera is not None:
-			self.camera.awb_gains = (self.settings["whiteBalance"][0], self.settings["whiteBalance"][1])
-
 
 	def _isPuckInField(self, pos):
 		if not (0 < pos.x < FIELD_WIDTH):

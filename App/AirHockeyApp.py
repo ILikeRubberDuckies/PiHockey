@@ -257,7 +257,7 @@ class RootWidget(BoxLayout):
 				image = Image(size=(192, 320), source="icons/no-video.png", allow_stretch = False)
 
 			image = self.ids.frameSettingsStream
-			texture = self.imageToTexture(self.camera.frame, "bgr")
+			texture = self.imageToTexture(self.camera.frame, "luminance")
 			if texture is not None:
 				image.texture = texture
 			else:
@@ -273,7 +273,7 @@ class RootWidget(BoxLayout):
 		if self.ids.screenManager.current == "cameraScreen":
 			if image.showing == "Frame":
 				frame = self.camera.frame
-				frameFormat = "bgr"
+				frameFormat = "luminance"
 			elif image.showing == "Mask":
 				frame = self.camera.mask
 				frameFormat = "luminance"
@@ -299,6 +299,7 @@ class RootWidget(BoxLayout):
 		texture = None
 		if frame is not None:
 			texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt=frameFormat)
+			#FAILS SILENTLY ON BUFFER/FRAME SIZE-MISMACTH
 			texture.blit_buffer(frame.flatten(), colorfmt=frameFormat, bufferfmt='ubyte')
 		return texture	
  
@@ -596,6 +597,7 @@ class RootWidget(BoxLayout):
 	
  #----------------------------- Communication with arduino -----------------------------
 	def updateArduino(self, *args):
+		return
 	 #----------------------------- Read -----------------------------
 		if self.serial.error and not self.motorsConnecting:
 			self.motorsConnecting = True
