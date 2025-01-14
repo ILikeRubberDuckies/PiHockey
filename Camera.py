@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from threading import Thread
 try:
-	from WebcamVideoStream import ADSVideoStream
+	from WebcamVideoStream import WSPositionStream
 except:
 	pass
 from UniTools import Filter, FPSCounter, Repeater
@@ -101,7 +101,7 @@ class Camera():
 
 		frameCount = 0
 		while frameCount < 300:
-			if self.piVideo.newFrame:
+			if self.piVideo.newPosition:
 				self.frame = self.piVideo.read()				
 				frameCount += 1
 
@@ -169,7 +169,7 @@ class Camera():
 		print("Saving in: " + str(secondLeft))
 		secondLeft -= 1
 		while True:
-			if self.piVideo.newFrame:
+			if self.piVideo.newPosition:
 				self.frame = self.piVideo.read()		
 				frame = self.frame[round(self.settings["resolution"][1]*0.2):round(self.settings["resolution"][1]*0.8), round(self.settings["resolution"][0]*0.2):round(self.settings["resolution"][0]*0.8)]
 				frame = cv2.GaussianBlur(frame, (11, 11), 0)
@@ -233,74 +233,10 @@ class Camera():
 
 		print("Detecting...")
 		while True:
-			if self.piVideo.newFrame:				
-				self.frame = self.piVideo.read()				
-				self.frameCount += 1
-				self.counter.tick()
-
-				self._createTransformMatrices(self.settings["fieldCorners"])
-
-				if ENABLE_BLURRING and not MAX_PERFORMANCE:
-					blurred = cv2.GaussianBlur(self.frame, (11, 11), 0)
-					frameHSV = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV) # not worth
-				else:
-					frameHSV = cv2.cvtColor(self.frame, cv2.COLOR_GRAY2BGR)
-					frameHSV = cv2.cvtColor(frameHSV, cv2.COLOR_BGR2HSV)
-
-				# cv2.imshow("e",frameHSV)
-				# cv2.waitKey(0)
-
-
-				if HSV_TRACKBARS and not MAX_PERFORMANCE:
-					self.settings["lowerLimits"][0] = cv2.getTrackbarPos("Hl", "Trackbars")
-					self.settings["upperLimits"][0] = cv2.getTrackbarPos("Hh", "Trackbars")
-
-				# if DETECT_PUCK:
-				if self.settings["lowerLimits"][0] > self.settings["upperLimits"][0]:
-					lowerLimit1 = np.uint8(self.settings["lowerLimits"])
-					higherLimit1 = np.uint8([179, self.settings["upperLimits"][1], self.settings["upperLimits"][2]])
-					lowerLimit2 = np.uint8([0, self.settings["lowerLimits"][1], self.settings["lowerLimits"][2]])
-					higherLimit2 = np.uint8(self.settings["upperLimits"])
-
-					mask1 = cv2.inRange(frameHSV, lowerLimit1, higherLimit1)
-					mask2 = cv2.inRange(frameHSV, lowerLimit2, higherLimit2)
-
-					self.mask = cv2.bitwise_or(mask1, mask2)
-				else:
-					self.mask = cv2.inRange(frameHSV, self.settings["lowerLimits"], self.settings["upperLimits"])
-
-				# perform a series of dilations and erosions to remove any small blobs left in the self.mask
-				self.filteredMask = cv2.erode(self.mask, None, iterations=1)
-				self.filteredMask = cv2.dilate(self.filteredMask, None, iterations=1)
-				filtered = cv2.bitwise_and(self.frame, self.frame, mask=self.filteredMask)
-				
-				#----------------------------- DETECTION -----------------------------
-				try:
-					cnts = cv2.findContours(self.filteredMask.copy(), cv2.RETR_EXTERNAL,
-					cv2.CHAIN_APPROX_SIMPLE)
-					cnts = imutils.grab_contours(cnts)
-					center = None
-
-					# only proceed if at least one contour was found
-					if len(cnts) > 0:
-						# find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
-						c = max(cnts, key=cv2.contourArea)
-						((x, y), radius) = cv2.minEnclosingCircle(c)
-
-						# only proceed if the radius meets a minimum size
-						if radius > self.settings["limitPuckRadius"]:
-							self.detectingCounter.tick()
-
-							pixelPos = Vector2(int(x + 1), int(y + 3))
-							unitPos = self._pixelsToUnits(pixelPos)
-							if self._isPuckInField(unitPos):
-								self.pixelPuckPosition = pixelPos
-								self.unitPuckPosition = unitPos
-								self.unitFilteredPuckPosition = self.filter.filterData(Vector2(self.unitPuckPosition[0], self.unitPuckPosition[1]))
-								self.newPosition = True						
-				except:
-					print("Error during puck detection.")
-
+			if self.piVideo.newPosition:
+				self.detectingCounter.tick()
+				self.unitFilteredPuckPosition = self.piVideo.read()
+				self.newPosition = True
 				
 				if not MAX_PERFORMANCE:
 					if SHOW_DETECTION:
@@ -357,7 +293,7 @@ class Camera():
 
 	def startCamera(self):
 		if self.piVideo is None:
-			self.piVideo = ADSVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
+			self.piVideo = WSPositionStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
 
 		self.piVideo.start()		
 
