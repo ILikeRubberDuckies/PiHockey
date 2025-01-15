@@ -14,6 +14,7 @@ from Strategy import StrategyA, StrategyB, StrategyC, StrategyD
 from UniTools import FPSCounter, Repeater
 from pygame.math import Vector2
 from threading import Thread
+import Camera
 import time
 
 class Game():
@@ -65,7 +66,7 @@ class Game():
 		
 		print(self.strategy.description)
 
-	def setStriker(self, pos, vel = None):
+	def setStriker(self, pos, vel = None):#the current position from arduino
 		if isinstance(pos, Vector2):
 			self.strikersPosition[0] = Vector2(pos)
 		else:
@@ -77,7 +78,7 @@ class Game():
 			else:
 				self.strikersVelocity[0] = Vector2(*vel)
 
-	def setOpponentStriker(self, pos, vel = None):
+	def setOpponentStriker(self, pos, vel = None):#no caller. Have to assume this isn't being used
 		if isinstance(pos, Vector2):
 			self.strikersPosition[1] = Vector2(pos)
 		else:
@@ -122,8 +123,14 @@ class Game():
 			if pos.x > STRIKER_RADIUS * 1.5:
 				self.waitForPuck = False
 			self.strategy.cameraInput(pos)
+		
+		desiredPos = self.getDesiredPosition()
+		self.camera.setDesiredPosition(desiredPos)
 
-		self.strategy.setStriker(self.strikersPosition[0], self.strikersVelocity[0])
+		if self.camera.newStrikerPosition:
+			self.strategy.setStriker(self.camera.getStrikerPosition())
+			
+		#self.strategy.setStriker(self.strikersPosition[0], self.strikersVelocity[0])#input current striker positions. No way to receive opponent striker pos. Should be 0/0
 		self.strategy.setOpponentStriker(self.strikersPosition[1], self.strikersVelocity[1])
 		if not self.waitForPuck:
 			try:
@@ -133,7 +140,7 @@ class Game():
 				pass
 			self.frequencyCounter.tick()
 
-	def goal(self, side):
+	def goal(self, side):#not needed
 		if time.time() - self.lastGoalAt > 2 and not self.waitForPuck:
 			self.lastGoalAt = time.time()
 			self.lastGoalOnSide = side
@@ -141,7 +148,7 @@ class Game():
 			self.onSide = 0
 			self.waitForPuck = True
 
-	def checkEnd(self):
+	def checkEnd(self):#not needed
 		if (self.settings["applyMaxScore"] and (max(self.score) >= self.settings["maxScore"])) or (self.settings["applyMaxTime"] and (self.gameTime >= self.settings["maxTime"])):
 			self.gameDone = True
 			if self.score[0] == self.score[1]:
@@ -149,7 +156,7 @@ class Game():
 			else:
 				self.winner = self.score.index(max(self.score))
 
-	def checkData(self, stepTime):
+	def checkData(self, stepTime):#not needed
 		if not self.waitForPuck:
 			puck = self.strategy.puck
 			puckPos = puck.position
@@ -169,7 +176,7 @@ class Game():
 			if not self.onSide == 0:
 				self.puckControl[max(0, self.onSide)] += stepTime
 
-	def checkShot(self, dir):
+	def checkShot(self, dir):#not needed
 		print("Puck Control:", self.puckControl)
 
 		puck = self.strategy.puck

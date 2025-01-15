@@ -122,6 +122,10 @@ class BaseStrategy():
 
 		errorAngle = self.getAngleDifference(currentStepVector, self.puck.velocity)
 
+		if self.puck.velocity.magnitude()<3:
+			errorAngle = 0
+
+
 		# Low angle condition
 		if abs(errorAngle) > self.lowAngleTolerance and sign(errorAngle) == self.previousErrorSide:
 			self.capturesWithBadLowAngle += 1
@@ -187,7 +191,7 @@ class BaseStrategy():
 		# 	if i <= 1: break
 		# 	i -= 1
 	
-	def setStriker(self, pos, velocity = None):
+	def setStriker(self, pos, velocity = None):#receives pos from arduino
 		if velocity == None:
 			step = pos - self.striker.position
 			velocity = Vector2(step)
@@ -201,7 +205,7 @@ class BaseStrategy():
 		self.striker.velocity = Vector2(velocity)
 		self.striker.position = Vector2(pos)
 
-	def setOpponentStriker(self, pos, velocity = None):
+	def setOpponentStriker(self, pos, velocity = None):#should receive 0/0 only
 		if velocity == None:
 			step = pos - self.opponentStriker.position
 			velocity = Vector2(step)
@@ -221,7 +225,7 @@ class BaseStrategy():
 		self.puckHistory.insert(0, self.puck)
 
 		self.firstUsefull = len(self.puckHistory) - 1
-		while(self.puckHistory[self.firstUsefull].state == USELESS):
+		while(self.puckHistory[self.firstUsefull].state == USELESS):#go through history unitl we find a useful detection or we've reached the second one
 			self.firstUsefull -= 1
 			if self.firstUsefull == 1: break
 
@@ -240,8 +244,10 @@ class BaseStrategy():
 			# print(fi)
 			# print(r)
 			# self.puck.velocity = self.velocityFilter.filterData(self.puck.velocity)
-
-			self.puck.vector = self.puck.velocity.normalize()
+			try:
+				self.puck.vector = self.puck.velocity.normalize()
+			except:
+				print("error")
 			self.puck.speedMagnitude = r
 			self.puck.angle = fi if fi > 0 else 360 - abs(fi)
 		# else:
@@ -265,6 +271,8 @@ class BaseStrategy():
 
 	def setDesiredPosition(self, pos):
 		self.striker.desiredPosition = Vector2(pos)
+		#print(pos)
+		self.setStriker(pos)
 		self.limitMovement()
 		self.calculateDesiredVelocity()
 

@@ -39,6 +39,9 @@ class StrategyD(BaseStrategy):
 		self.lastPuckStop = 0
 
 	def _process(self):
+		self.puck.state = ACURATE
+		print(self.debugString)
+		#print(self.puck.velocity)
 
 		def case(state):
 			return state == self.state
@@ -98,8 +101,8 @@ class StrategyD(BaseStrategy):
 					desiredY = self.puck.position.y
 				self.setDesiredPosition(Vector2(self.puck.position.x - 4*STRIKER_RADIUS, desiredY))
 
-				if self.puck.speedMagnitude < 100 or self.puck.state == ACURATE and abs(self.puck.velocity.y) < self.maxSpeed*.8\
-						and sign(self.puck.velocity.y)*(self.striker.position.y - self.puck.position.y) > 20:
+				if self.puck.speedMagnitude < 200 or self.puck.state == ACURATE and abs(self.puck.velocity.y) < self.maxSpeed*.8\
+						and sign(self.puck.velocity.y)*(self.striker.position.y - self.puck.position.y) > 10:
 					self.subState = ATTACK_SHOOT
 			
 			elif subCase(ATTACK_INIT): # this should be done only if puck is almost still (will need a prepare time afted decision)
@@ -300,7 +303,7 @@ class StrategyD(BaseStrategy):
 
 	def badAttackingAngle(self, pos):
 		radius, attackAngle = (pos - self.striker.position).as_polar()
-		return abs(attackAngle) > 65
+		return abs(attackAngle) > 75
 
 	def canAttack(self):		
 		# if self.puck.position.x

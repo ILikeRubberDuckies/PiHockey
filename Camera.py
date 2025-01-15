@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from threading import Thread
 try:
-	from WebcamVideoStream import WSPositionStream
+	from WebcamVideoStream import ADSVideoStream
 except:
 	pass
 from UniTools import Filter, FPSCounter, Repeater
@@ -80,9 +80,11 @@ class Camera():
 		self._createTransformMatrices(self.settings["fieldCorners"].copy())
 		
 		self.newPosition = False
+		self.newStrikerPosition = False
 		self.pixelPuckPosition = Vector2(int(0), int(0))
 		self.unitPuckPosition = Vector2(0, 0)
 		self.unitFilteredPuckPosition = Vector2(0, 0)
+		self.strikerPosition = Vector2(0,0)
 
 		self.filter = Filter(*self.settings["filterConstants"])
 
@@ -233,7 +235,11 @@ class Camera():
 
 		print("Detecting...")
 		while True:
-			if self.piVideo.newPosition:
+			if self.piVideo.newStrikerPosition:
+				self.newStrikerPosition = True
+				self.strikerPosition = self.piVideo.getStrikerPos()
+
+			if self.piVideo.newPuckPosition:
 				self.detectingCounter.tick()
 				self.unitFilteredPuckPosition = self.piVideo.read()
 				self.newPosition = True
@@ -293,7 +299,7 @@ class Camera():
 
 	def startCamera(self):
 		if self.piVideo is None:
-			self.piVideo = WSPositionStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
+			self.piVideo = ADSVideoStream(self.settings["resolution"], self.settings["fps"], self.settings["whiteBalance"])
 
 		self.piVideo.start()		
 
@@ -368,6 +374,15 @@ class Camera():
 	def getPuckPosition(self):
 		self.newPosition = False
 		return self.unitFilteredPuckPosition
+	
+	def getStrikerPosition(self):
+		self.newStrikerPosition = False
+		return self.strikerPosition
+	
+	def setDesiredPosition(self,pos):
+		self.piVideo.write(pos)
+	
+
 
 	def _isPuckInField(self, pos):
 		if not (0 < pos.x < FIELD_WIDTH):
